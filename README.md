@@ -13,18 +13,20 @@ Kotlin JNA wrapper for [rapidyenc](https://github.com/animetosho/rapidyenc), a h
 
 ## Installation
 
-Published to Maven Local. Add to your `build.gradle.kts`:
+Add JitPack and the dependency to your `build.gradle.kts`:
 
 ```kotlin
 repositories {
-    mavenLocal()
+    maven("https://jitpack.io")
     mavenCentral()
 }
 
 dependencies {
-    implementation("io.skjaere:yebc-kotlin-wrapper:0.1.0")
+    implementation("com.github.skjaere:rapidyenc-kotlin-wrapper:TAG")
 }
 ```
+
+Replace `TAG` with a release tag, commit hash, or branch name (e.g. `v0.1.0`, `main-SNAPSHOT`).
 
 ## Usage
 
