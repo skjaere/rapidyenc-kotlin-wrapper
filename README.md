@@ -1,5 +1,8 @@
 # rapidyenc-kotlin-wrapper
 
+[![CI](https://github.com/skjaere/rapidyenc-kotlin-wrapper/actions/workflows/ci.yml/badge.svg)](https://github.com/skjaere/rapidyenc-kotlin-wrapper/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/skjaere/rapidyenc-kotlin-wrapper/graph/badge.svg)](https://codecov.io/gh/skjaere/rapidyenc-kotlin-wrapper)
+
 Kotlin JNA wrapper for [rapidyenc](https://github.com/animetosho/rapidyenc), a high-performance yEnc encoder/decoder with SIMD acceleration.
 
 ## Features
