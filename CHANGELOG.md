@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0](https://github.com/skjaere/rapidyenc-kotlin-wrapper/compare/v0.1.0...v0.1.0) (2026-02-09)
+
+
+### Features
+
+* add YencEncoder for single-part yEnc encoding ([0ab7d2d](https://github.com/skjaere/rapidyenc-kotlin-wrapper/commit/0ab7d2d51a28a98c31d18bc085ef333422839acf))
+
 ## 0.1.0 (2026-02-09)
 
 
