@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/skjaere/rapidyenc-kotlin-wrapper/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/skjaere/rapidyenc-kotlin-wrapper/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/skjaere/rapidyenc-kotlin-wrapper/branch/master/graph/badge.svg)](https://codecov.io/gh/skjaere/rapidyenc-kotlin-wrapper)
+[![JitPack](https://jitpack.io/v/skjaere/rapidyenc-kotlin-wrapper.svg)](https://jitpack.io/#skjaere/rapidyenc-kotlin-wrapper)
 
 Kotlin JNA wrapper for [rapidyenc](https://github.com/animetosho/rapidyenc), a high-performance yEnc encoder/decoder with SIMD acceleration.
 
@@ -149,7 +150,7 @@ Requires Java 25+ and uses the Gradle wrapper (Gradle 9.0):
 
 ## Platform Support
 
-Currently ships with the native library for **Linux x86-64**. The `librapidyenc.so` is bundled in the JAR and loaded automatically by JNA.
+Ships with native libraries for **Linux x86-64** and **Linux aarch64**. JNA loads the right `librapidyenc.so` for the host architecture automatically.
 
 ## License
 
