@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/skjaere/rapidyenc-kotlin-wrapper/compare/v0.1.3...v0.2.0) (2026-04-25)
+
+
+### Features
+
+* bundle linux-aarch64/librapidyenc.so for arm64 hosts ([b2e3d24](https://github.com/skjaere/rapidyenc-kotlin-wrapper/commit/b2e3d2406ce745cc1a5e7287b57b6c11fb58596c))
+
 ## 0.1.0 (2026-02-09)
 
 
