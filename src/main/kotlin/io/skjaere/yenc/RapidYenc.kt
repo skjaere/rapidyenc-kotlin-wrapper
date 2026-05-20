@@ -171,6 +171,65 @@ object RapidYenc {
         return written
     }
 
+    /**
+     * Direct-buffer overload of [decodeIncremental]. Reuses caller-owned direct
+     * [ByteBuffer]s to avoid the per-call JNA `Memory` allocations of the [ByteArray]
+     * variant, which malloc the src+dest workspaces under the hood and then leak the
+     * pages into glibc arenas (untracked by NMT, never returned to the OS without
+     * `malloc_trim`). Position semantics follow `java.nio.channels.ReadableByteChannel`:
+     * input is read from `src.position()..src.limit()`, output written to
+     * `dest.position()..dest.limit()`, and both positions are advanced in place.
+     *
+     * The src/dest buffers MUST be direct (heap buffers don't have a stable native
+     * address). Tiny pointer-holder allocations (3 × Memory totalling 20 bytes) are
+     * still made per call — they're a fixed cost that can't be eliminated without
+     * adding a reusable context object to the API.
+     */
+    fun decodeIncremental(
+        src: ByteBuffer,
+        dest: ByteBuffer,
+        state: RapidYencDecoderState = RapidYencDecoderState.CRLF
+    ): IncrementalDecodeBufferResult {
+        ensureInitialized()
+        require(src.isDirect && dest.isDirect) { "Both buffers must be direct ByteBuffers" }
+        val srcRemaining = src.remaining().toLong()
+        if (srcRemaining == 0L) {
+            return IncrementalDecodeBufferResult(0, 0, RapidYencDecoderEnd.NONE, state)
+        }
+
+        val srcBase = Native.getDirectBufferPointer(src)
+        val destBase = Native.getDirectBufferPointer(dest)
+        val srcPtr = if (src.position() == 0) srcBase else srcBase.share(src.position().toLong())
+        val destPtr = if (dest.position() == 0) destBase else destBase.share(dest.position().toLong())
+
+        val ptrSize = Native.POINTER_SIZE.toLong()
+        val srcPtrMem = Memory(ptrSize)
+        srcPtrMem.setPointer(0, srcPtr)
+        val destPtrMem = Memory(ptrSize)
+        destPtrMem.setPointer(0, destPtr)
+        val stateMem = Memory(4)
+        stateMem.setInt(0, state.value)
+
+        val endResult = RapidYencLibrary.rapidyenc_decode_incremental(
+            srcPtrMem, destPtrMem, srcRemaining, stateMem
+        )
+
+        val updatedSrc = srcPtrMem.getPointer(0)
+        val updatedDest = destPtrMem.getPointer(0)
+        val bytesConsumed = Pointer.nativeValue(updatedSrc) - Pointer.nativeValue(srcPtr)
+        val bytesWritten = Pointer.nativeValue(updatedDest) - Pointer.nativeValue(destPtr)
+
+        src.position((src.position() + bytesConsumed).toInt())
+        dest.position((dest.position() + bytesWritten).toInt())
+
+        return IncrementalDecodeBufferResult(
+            bytesConsumed = bytesConsumed,
+            bytesWritten = bytesWritten,
+            end = RapidYencDecoderEnd.fromValue(endResult),
+            state = RapidYencDecoderState.fromValue(stateMem.getInt(0))
+        )
+    }
+
     fun decodeKernel(): RapidYencKernel {
         ensureInitialized()
         return RapidYencKernel.fromValue(RapidYencLibrary.rapidyenc_decode_kernel())
@@ -184,6 +243,20 @@ object RapidYenc {
         val mem = Memory(data.size.toLong())
         mem.write(0, data, 0, data.size)
         return RapidYencLibrary.rapidyenc_crc(mem, data.size.toLong(), initCrc.toInt()).toUInt()
+    }
+
+    /**
+     * Direct-buffer overload of [crc32]. Computes CRC32 over `length` bytes starting
+     * at `data.position()` without copying through a per-call `Memory` malloc. The
+     * buffer's position is unchanged.
+     */
+    fun crc32(data: ByteBuffer, length: Int = data.remaining(), initCrc: UInt = 0u): UInt {
+        ensureInitialized()
+        require(data.isDirect) { "Buffer must be direct" }
+        if (length == 0) return initCrc
+        val base = Native.getDirectBufferPointer(data)
+        val ptr = if (data.position() == 0) base else base.share(data.position().toLong())
+        return RapidYencLibrary.rapidyenc_crc(ptr, length.toLong(), initCrc.toInt()).toUInt()
     }
 
     fun crc32Combine(crc1: UInt, crc2: UInt, length2: Long): UInt {
