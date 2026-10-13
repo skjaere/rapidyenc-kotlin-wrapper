@@ -7,7 +7,7 @@ import com.sun.jna.Pointer
 object RapidYencLibrary {
 
     init {
-        Native.register("rapidyenc")
+        Native.register(RapidYencLibrary::class.java, "rapidyenc")
     }
 
     // Version
