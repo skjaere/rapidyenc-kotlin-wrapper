@@ -139,6 +139,8 @@ RapidYencLibrary.rapidyenc_encode_init()
 val version = RapidYencLibrary.rapidyenc_version()
 ```
 
+C `size_t` parameters and results are declared as `SizeT`, which is 32 bits wide on 32-bit ABIs (armeabi-v7a, x86) and 64 bits elsewhere: `RapidYencLibrary.rapidyenc_encode_max_length(SizeT(1024), 128).toLong()`.
+
 ## Build
 
 Requires Java 25+ and uses the Gradle wrapper (Gradle 9.0):

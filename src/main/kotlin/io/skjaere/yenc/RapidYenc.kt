@@ -32,11 +32,11 @@ object RapidYenc {
     fun encode(src: ByteArray): ByteArray {
         ensureInitialized()
         if (src.isEmpty()) return ByteArray(0)
-        val maxLen = RapidYencLibrary.rapidyenc_encode_max_length(src.size.toLong(), 128)
+        val maxLen = RapidYencLibrary.rapidyenc_encode_max_length(SizeT(src.size.toLong()), 128).toLong()
         val srcMem = Memory(src.size.toLong())
         val destMem = Memory(maxLen)
         srcMem.write(0, src, 0, src.size)
-        val written = RapidYencLibrary.rapidyenc_encode(srcMem, destMem, src.size.toLong())
+        val written = RapidYencLibrary.rapidyenc_encode(srcMem, destMem, SizeT(src.size.toLong())).toLong()
         val result = ByteArray(written.toInt())
         destMem.read(0, result, 0, written.toInt())
         return result
@@ -50,15 +50,15 @@ object RapidYenc {
     ): EncodeResult {
         ensureInitialized()
         if (src.isEmpty()) return EncodeResult(ByteArray(0), column)
-        val maxLen = RapidYencLibrary.rapidyenc_encode_max_length(src.size.toLong(), lineSize)
+        val maxLen = RapidYencLibrary.rapidyenc_encode_max_length(SizeT(src.size.toLong()), lineSize).toLong()
         val srcMem = Memory(src.size.toLong())
         val destMem = Memory(maxLen)
         srcMem.write(0, src, 0, src.size)
         val columnMem = Memory(4)
         columnMem.setInt(0, column)
         val written = RapidYencLibrary.rapidyenc_encode_ex(
-            lineSize, columnMem, srcMem, destMem, src.size.toLong(), if (isEnd) 1 else 0
-        )
+            lineSize, columnMem, srcMem, destMem, SizeT(src.size.toLong()), if (isEnd) 1 else 0
+        ).toLong()
         val result = ByteArray(written.toInt())
         destMem.read(0, result, 0, written.toInt())
         return EncodeResult(result, columnMem.getInt(0))
@@ -69,13 +69,13 @@ object RapidYenc {
         require(src.isDirect && dest.isDirect) { "Both buffers must be direct ByteBuffers" }
         val srcPtr = Native.getDirectBufferPointer(src)
         val destPtr = Native.getDirectBufferPointer(dest)
-        val written = RapidYencLibrary.rapidyenc_encode(srcPtr, destPtr, src.remaining().toLong())
+        val written = RapidYencLibrary.rapidyenc_encode(srcPtr, destPtr, SizeT(src.remaining().toLong())).toLong()
         dest.position(dest.position() + written.toInt())
         return written
     }
 
     fun encodeMaxLength(length: Long, lineSize: Int = 128): Long =
-        RapidYencLibrary.rapidyenc_encode_max_length(length, lineSize)
+        RapidYencLibrary.rapidyenc_encode_max_length(SizeT(length), lineSize).toLong()
 
     fun encodeKernel(): RapidYencKernel {
         ensureInitialized()
@@ -90,7 +90,7 @@ object RapidYenc {
         val srcMem = Memory(src.size.toLong())
         val destMem = Memory(src.size.toLong())
         srcMem.write(0, src, 0, src.size)
-        val written = RapidYencLibrary.rapidyenc_decode(srcMem, destMem, src.size.toLong())
+        val written = RapidYencLibrary.rapidyenc_decode(srcMem, destMem, SizeT(src.size.toLong())).toLong()
         val result = ByteArray(written.toInt())
         destMem.read(0, result, 0, written.toInt())
         return result
@@ -110,8 +110,8 @@ object RapidYenc {
             Memory(4).also { mem -> mem.setInt(0, it.value) }
         }
         val written = RapidYencLibrary.rapidyenc_decode_ex(
-            if (isRaw) 1 else 0, srcMem, destMem, src.size.toLong(), stateMem
-        )
+            if (isRaw) 1 else 0, srcMem, destMem, SizeT(src.size.toLong()), stateMem
+        ).toLong()
         val result = ByteArray(written.toInt())
         destMem.read(0, result, 0, written.toInt())
         val newState = stateMem?.let { RapidYencDecoderState.fromValue(it.getInt(0)) }
@@ -140,7 +140,7 @@ object RapidYenc {
         stateMem.setInt(0, state.value)
 
         val endResult = RapidYencLibrary.rapidyenc_decode_incremental(
-            srcPtrMem, destPtrMem, src.size.toLong(), stateMem
+            srcPtrMem, destPtrMem, SizeT(src.size.toLong()), stateMem
         )
 
         val updatedDestPtr = destPtrMem.getPointer(0)
@@ -166,7 +166,7 @@ object RapidYenc {
         require(src.isDirect && dest.isDirect) { "Both buffers must be direct ByteBuffers" }
         val srcPtr = Native.getDirectBufferPointer(src)
         val destPtr = Native.getDirectBufferPointer(dest)
-        val written = RapidYencLibrary.rapidyenc_decode(srcPtr, destPtr, src.remaining().toLong())
+        val written = RapidYencLibrary.rapidyenc_decode(srcPtr, destPtr, SizeT(src.remaining().toLong())).toLong()
         dest.position(dest.position() + written.toInt())
         return written
     }
@@ -211,7 +211,7 @@ object RapidYenc {
         stateMem.setInt(0, state.value)
 
         val endResult = RapidYencLibrary.rapidyenc_decode_incremental(
-            srcPtrMem, destPtrMem, srcRemaining, stateMem
+            srcPtrMem, destPtrMem, SizeT(srcRemaining), stateMem
         )
 
         val updatedSrc = srcPtrMem.getPointer(0)
@@ -242,7 +242,7 @@ object RapidYenc {
         if (data.isEmpty()) return initCrc
         val mem = Memory(data.size.toLong())
         mem.write(0, data, 0, data.size)
-        return RapidYencLibrary.rapidyenc_crc(mem, data.size.toLong(), initCrc.toInt()).toUInt()
+        return RapidYencLibrary.rapidyenc_crc(mem, SizeT(data.size.toLong()), initCrc.toInt()).toUInt()
     }
 
     /**
@@ -256,7 +256,7 @@ object RapidYenc {
         if (length == 0) return initCrc
         val base = Native.getDirectBufferPointer(data)
         val ptr = if (data.position() == 0) base else base.share(data.position().toLong())
-        return RapidYencLibrary.rapidyenc_crc(ptr, length.toLong(), initCrc.toInt()).toUInt()
+        return RapidYencLibrary.rapidyenc_crc(ptr, SizeT(length.toLong()), initCrc.toInt()).toUInt()
     }
 
     fun crc32Combine(crc1: UInt, crc2: UInt, length2: Long): UInt {
