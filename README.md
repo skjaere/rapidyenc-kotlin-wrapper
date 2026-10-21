@@ -143,7 +143,7 @@ C `size_t` parameters and results are declared as `SizeT`, which is 32 bits wide
 
 ## Build
 
-Requires Java 25+ and uses the Gradle wrapper (Gradle 9.0):
+Requires Java 25+ and uses the Gradle wrapper (Gradle 9.3.1):
 
 ```bash
 ./gradlew build              # Build and run tests
