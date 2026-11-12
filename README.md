@@ -30,7 +30,7 @@ dependencies {
 }
 ```
 
-Replace `TAG` with a release tag, commit hash, or branch name (e.g. `v0.1.0`, `main-SNAPSHOT`).
+Replace `TAG` with a release tag, commit hash, or branch name (e.g. `v0.1.0`, `master-SNAPSHOT`).
 
 ## Usage
 
