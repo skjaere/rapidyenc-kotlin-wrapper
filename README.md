@@ -143,11 +143,17 @@ C `size_t` parameters and results are declared as `SizeT`, which is 32 bits wide
 
 ## Build
 
-Requires Java 25+ and uses the Gradle wrapper (Gradle 9.3.1):
+The library is compiled for Java 17 with a JDK 17 toolchain, which Gradle downloads when none is installed. The Gradle wrapper (Gradle 9.3.1) runs on JDK 17 or newer; CI runs it on JDK 25. The tests run on the JDK 17 toolchain.
 
 ```bash
-./gradlew build              # Build and run tests
-./gradlew publishToMavenLocal  # Install to ~/.m2
+./gradlew build                # Build and run tests
+./gradlew publishToMavenLocal  # Install to the local Maven repository
+```
+
+The tests load the bundled `librapidyenc.so` for the host. To test another build of rapidyenc, set `RAPIDYENC_LIB_PATH` to the folder that holds its `librapidyenc.so`:
+
+```bash
+RAPIDYENC_LIB_PATH=/path/to/rapidyenc/build ./gradlew test
 ```
 
 ## Platform Support

@@ -28,11 +28,8 @@ java {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    systemProperty(
-        "jna.library.path",
-        System.getenv("RAPIDYENC_LIB_PATH")
-            ?: "/path/to/rapidyenc/build"
-    )
+    // The tests load the bundled librapidyenc.so. RAPIDYENC_LIB_PATH points them at a folder holding another build of it.
+    System.getenv("RAPIDYENC_LIB_PATH")?.let { systemProperty("jna.library.path", it) }
 }
 
 publishing {
