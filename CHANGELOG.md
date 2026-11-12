@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/skjaere/rapidyenc-kotlin-wrapper/compare/v0.2.0...v0.3.0) (2026-05-20)
+
+
+### Features
+
+* direct-buffer overloads for decodeIncremental and crc32
+
 ## [0.2.0](https://github.com/skjaere/rapidyenc-kotlin-wrapper/compare/v0.1.3...v0.2.0) (2026-04-25)
 
 
