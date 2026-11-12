@@ -162,4 +162,11 @@ Ships with native libraries for **Linux x86-64** and **Linux aarch64**. JNA load
 
 ## License
 
-The rapidyenc C library is created by [animetosho](https://github.com/animetosho/rapidyenc).
+This repository's own code is under the [PolyForm Noncommercial License 1.0.0](LICENSE.md) (SPDX `PolyForm-Noncommercial-1.0.0`): it is free for any non-commercial use, and commercial use needs the author's permission.
+
+These files keep their own licence:
+
+- The Gradle wrapper (`gradlew`, `gradlew.bat` and `gradle/wrapper/`): Apache License 2.0 (SPDX `Apache-2.0`).
+- The bundled native libraries (`src/main/resources/linux-x86-64/librapidyenc.so` and `src/main/resources/linux-aarch64/librapidyenc.so`): built from [rapidyenc](https://github.com/animetosho/rapidyenc) by animetosho (CC0-1.0), with Google's crcutil (Apache-2.0), zlib-ng's CRC32 folding (Zlib) and Hedley (CC0-1.0).
+
+Third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), and the Apache License 2.0 text in [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt).
